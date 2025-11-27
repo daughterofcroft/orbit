@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { TextInput, Button, Card, Text, Stack, Grid, Badge, Code, Divider } from '@mantine/core';
+import FormatImageWithArrow from './FormatImageWithArrow';
 
 interface DecodedInstruction {
   hex: string;
@@ -203,6 +204,15 @@ export default function RiscVDecoder() {
 
         {error && (
           <Text c="red" size="sm" style={{ marginTop: '0.5rem' }}>{error}</Text>
+        )}
+
+        {/* RV32I Formats image with moving arrow */}
+        {decoded && (
+          <Card shadow="sm" padding="md" radius="md" withBorder style={{ marginBottom: '0.5rem' }}>
+            <FormatImageWithArrow
+              activeType={decoded.mnemonic === 'fence' ? 'FENCE' : (decoded.instructionType as any)}
+            />
+          </Card>
         )}
 
         {/* Binary Display */}
