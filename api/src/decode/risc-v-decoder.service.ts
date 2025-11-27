@@ -145,6 +145,15 @@ export class RiscVDecoderService {
     '111': 'bgeu'
   };
 
+  private readonly csrInstructions: { [key: string]: string } = {
+    '001': 'csrrw',
+    '010': 'csrrs',
+    '011': 'csrrc',
+    '101': 'csrrwi',
+    '110': 'csrrsi',
+    '111': 'csrrci'
+  };
+
   decode(hex: string): DecodedInstruction {
     // Remove any whitespace and convert to uppercase
     const cleanHex = hex.replace(/\s/g, '').toUpperCase();
@@ -189,7 +198,7 @@ export class RiscVDecoderService {
     const mnemonic = this.getMnemonic(opcodeInfo, fields);
     
     // Generate operands
-    const operands = this.generateOperands(opcodeInfo.instructionType, fields);
+    const operands = this.generateOperands(opcodeInfo.instructionType, fields, mnemonic, opcodeInfo.opcode);
     
     // Generate description
     const description = this.generateDescription(mnemonic, opcodeInfo.instructionType);
@@ -236,17 +245,25 @@ export class RiscVDecoderService {
         if (opcodeInfo.opcode === '0000011') {
           return this.loadInstructions[iFunct3] || 'unknown';
         } else if (opcodeInfo.opcode === '1110011') {
-          // Check immediate field to distinguish between ECALL and EBREAK
-          const imm = fields['imm[11:0]'] || '';
-          if (imm === '000000000001') {
-            return 'ebreak';
+          // CSR/system instructions: check funct3
+          if (iFunct3 === '000') {
+            // Check immediate field to distinguish between ECALL and EBREAK
+            const imm = fields['imm[11:0]'] || '';
+            if (imm === '000000000000') {
+              return 'ecall';
+            } else if (imm === '000000000001') {
+              return 'ebreak';
+            } else {
+              return 'unknown';
+            }
           } else {
-            return 'ecall';
+            // CSR instructions (csrrw, csrrs, csrrc, csrrwi, csrrsi, csrrci)
+            return this.csrInstructions[iFunct3] || 'unknown';
           }
         } else if (opcodeInfo.opcode === '1100111') {
           return 'jalr';
         } else if (opcodeInfo.opcode === '0001111') {
-          return 'fence';
+          return (iFunct3 === '001') ? 'fence.i' : 'fence';
         } else {
           // For I-type instructions, check if it's a shift instruction (SLLI/SRLI/SRAI)
           if (iFunct3 === '001' || iFunct3 === '101') {
@@ -274,61 +291,132 @@ export class RiscVDecoderService {
     }
   }
 
-  private generateOperands(instructionType: string, fields: { [key: string]: string }): string[] {
+  private getRegisterName(regNum: number): string {
+    const abiNames: { [key: number]: string } = {
+      0: 'zero', 1: 'ra', 2: 'sp', 3: 'gp', 4: 'tp',
+      5: 't0', 6: 't1', 7: 't2',
+      8: 's0', 9: 's1',
+      10: 'a0', 11: 'a1', 12: 'a2', 13: 'a3', 14: 'a4', 15: 'a5', 16: 'a6', 17: 'a7',
+      28: 't3', 29: 't4', 30: 't5', 31: 't6'
+    };
+    return abiNames[regNum] || `x${regNum}`;
+  }
+
+  private generateOperands(instructionType: string, fields: { [key: string]: string }, mnemonic: string, opcode: string): string[] {
     const operands: string[] = [];
     
     switch (instructionType) {
       case 'R':
-        operands.push(`x${parseInt(fields['rd'], 2)}`);
-        operands.push(`x${parseInt(fields['rs1'], 2)}`);
-        operands.push(`x${parseInt(fields['rs2'], 2)}`);
+        operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+        operands.push(this.getRegisterName(parseInt(fields['rs1'], 2)));
+        operands.push(this.getRegisterName(parseInt(fields['rs2'], 2)));
         break;
         
       case 'I':
-        operands.push(`x${parseInt(fields['rd'], 2)}`);
-        operands.push(`x${parseInt(fields['rs1'], 2)}`);
-        // For shift instructions (SLLI, SRLI, SRAI), only use lower 5 bits of immediate
-        const funct3 = fields['funct3'] || '';
-        if (funct3 === '001' || funct3 === '101') {
-          const shiftAmount = parseInt(fields['imm[11:0]'].slice(-5), 2);
-          operands.push(shiftAmount.toString());
+        // Special formatting for jalr, fence, and load instructions
+        if (opcode === '1100111') {
+          // jalr: jalr rd, imm(rs1)
+          const jalrImm = this.signExtend(fields['imm[11:0]'], 12);
+          operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+          operands.push(`${jalrImm}(${this.getRegisterName(parseInt(fields['rs1'], 2))})`);
+        } else if (opcode === '0001111') {
+          if (mnemonic === 'fence.i') {
+            // fence.i has no operands
+          } else {
+            // fence: fence pred, succ (uses immediate bits for pred/succ, not rd/rs1)
+            // imm[11:8] = pred, imm[7:4] = succ, imm[3:0] = fm
+            // Each nibble: bit 3=i, bit 2=o, bit 1=r, bit 0=w
+            const imm = parseInt(fields['imm[11:0]'], 2);
+            const pred = (imm >> 8) & 0xF;
+            const succ = (imm >> 4) & 0xF;
+            const predStr = this.decodeFenceFlags(pred);
+            const succStr = this.decodeFenceFlags(succ);
+            operands.push(predStr);
+            operands.push(succStr);
+          }
+        } else if (opcode === '0000011') {
+          // Load instructions: lw rd, imm(rs1)
+          const loadImm = this.signExtend(fields['imm[11:0]'], 12);
+          operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+          operands.push(`${loadImm}(${this.getRegisterName(parseInt(fields['rs1'], 2))})`);
+        } else if (opcode === '1110011') {
+          // CSR/system instructions
+          if (mnemonic === 'ecall' || mnemonic === 'ebreak') {
+            // ecall and ebreak have no operands
+            // No operands to add
+          } else {
+            // CSR instructions
+            const csr = parseInt(fields['imm[11:0]'], 2);
+            operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+            operands.push(`0x${csr.toString(16).toUpperCase()}`);
+            if (mnemonic === 'csrrwi' || mnemonic === 'csrrsi' || mnemonic === 'csrrci') {
+              // CSR immediate instructions: rd, csr, imm (imm is in rs1 field)
+              const csrImm = parseInt(fields['rs1'], 2);
+              operands.push(csrImm.toString());
+            } else {
+              // CSR register instructions: rd, csr, rs1
+              operands.push(this.getRegisterName(parseInt(fields['rs1'], 2)));
+            }
+          }
         } else {
-          const imm = this.signExtend(fields['imm[11:0]'], 12);
-          operands.push(imm.toString());
+          // Standard I-type: rd, rs1, imm
+          operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+          operands.push(this.getRegisterName(parseInt(fields['rs1'], 2)));
+          // For shift instructions (SLLI, SRLI, SRAI), only use lower 5 bits of immediate
+          const funct3 = fields['funct3'] || '';
+          if (funct3 === '001' || funct3 === '101') {
+            const shiftAmount = parseInt(fields['imm[11:0]'].slice(-5), 2);
+            operands.push(shiftAmount.toString());
+          } else {
+            const imm = this.signExtend(fields['imm[11:0]'], 12);
+            operands.push(imm.toString());
+          }
         }
         break;
         
       case 'S':
-        operands.push(`x${parseInt(fields['rs2'], 2)}`);
+        operands.push(this.getRegisterName(parseInt(fields['rs2'], 2)));
         const sImm = this.signExtend(fields['imm[11:5]'] + fields['imm[4:0]'], 12);
-        operands.push(`${sImm}(x${parseInt(fields['rs1'], 2)})`);
+        operands.push(`${sImm}(${this.getRegisterName(parseInt(fields['rs1'], 2))})`);
         break;
         
       case 'B':
-        operands.push(`x${parseInt(fields['rs1'], 2)}`);
-        operands.push(`x${parseInt(fields['rs2'], 2)}`);
+        operands.push(this.getRegisterName(parseInt(fields['rs1'], 2)));
+        operands.push(this.getRegisterName(parseInt(fields['rs2'], 2)));
         // B-type immediate calculation: [12|10:5|4:1|11]
-        const bImmBits = fields['imm[12|10:5]'] + fields['imm[4:1|11]'];
+        // imm[12|10:5] contains: imm[12] at bit 0, imm[10:5] at bits 1-6
+        // imm[4:1|11] contains: imm[4:1] at bits 0-3, imm[11] at bit 4
+        const bImm12_10_5 = fields['imm[12|10:5]'];
+        const bImm4_1_11 = fields['imm[4:1|11]'];
+        const bImm12 = bImm12_10_5[0]; // MSB of imm[12|10:5] = imm[12]
+        const bImm10_5 = bImm12_10_5.slice(1); // bits 1-6 = imm[10:5]
+        const bImm11 = bImm4_1_11[bImm4_1_11.length - 1]; // LSB of imm[4:1|11] = imm[11]
+        const bImm4_1 = bImm4_1_11.slice(0, -1); // bits 0-3 = imm[4:1]
+        // Reconstruct in correct order: imm[12] + imm[11] + imm[10:5] + imm[4:1] + '0'
+        const bImmBits = bImm12 + bImm11 + bImm10_5 + bImm4_1 + '0';
         const bImm = this.signExtend(bImmBits, 13);
         operands.push(bImm.toString());
         break;
         
       case 'U':
-        operands.push(`x${parseInt(fields['rd'], 2)}`);
-        const uImm = parseInt(fields['imm[31:12]'], 2) << 12;
-        operands.push(`0x${uImm.toString(16)}`);
+        operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
+        // U-type immediate is 20 bits (imm[31:12]), treat as unsigned
+        const uImmBits = fields['imm[31:12]'];
+        const uImm = parseInt(uImmBits, 2); // Parse as unsigned
+        // Format as 5 hex digits (20 bits = 5 hex digits)
+        operands.push(`0x${uImm.toString(16).toUpperCase().padStart(5, '0')}`);
         break;
         
       case 'J':
-        operands.push(`x${parseInt(fields['rd'], 2)}`);
+        operands.push(this.getRegisterName(parseInt(fields['rd'], 2)));
         // J-type immediate calculation: [20|10:1|11|19:12]
         const jImmBits = fields['imm[20|10:1|11|19:12]'];
-        // Reconstruct the 21-bit immediate: [20|10:1|11|19:12]
+        // Reconstruct the 21-bit immediate: imm[20] + imm[19:12] + imm[11] + imm[10:1] + '0'
         const imm20 = jImmBits[0];
         const imm10_1 = jImmBits.slice(1, 11);
         const imm11 = jImmBits[11];
         const imm19_12 = jImmBits.slice(12, 20);
-        const reconstructedImm = imm20 + imm10_1 + imm11 + imm19_12 + '0';
+        const reconstructedImm = imm20 + imm19_12 + imm11 + imm10_1 + '0';
         const jImm = this.signExtend(reconstructedImm, 21);
         operands.push(jImm.toString());
         break;
@@ -399,9 +487,28 @@ export class RiscVDecoderService {
       // System instructions
       'ecall': 'Environment call',
       'ebreak': 'Environment break',
-      'fence': 'Fence'
+      'fence': 'Fence',
+      'fence.i': 'Fence instruction cache',
+      
+      // CSR instructions
+      'csrrw': 'Read/Write CSR',
+      'csrrs': 'Read and Set bits in CSR',
+      'csrrc': 'Read and Clear bits in CSR',
+      'csrrwi': 'Read/Write CSR immediate',
+      'csrrsi': 'Read and Set bits in CSR immediate',
+      'csrrci': 'Read and Clear bits in CSR immediate'
     };
     
     return descriptions[mnemonic] || `${mnemonic} instruction`;
+  }
+
+  private decodeFenceFlags(nibble: number): string {
+    // Each bit: bit 3=i, bit 2=o, bit 1=r, bit 0=w
+    const flags: string[] = [];
+    if (nibble & 0x8) flags.push('i'); // input
+    if (nibble & 0x4) flags.push('o'); // output
+    if (nibble & 0x2) flags.push('r'); // read
+    if (nibble & 0x1) flags.push('w'); // write
+    return flags.length > 0 ? flags.join('') : '0';
   }
 }

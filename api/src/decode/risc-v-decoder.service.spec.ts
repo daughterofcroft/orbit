@@ -45,7 +45,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0110011');
         expect(result.instructionType).toBe('R');
         expect(result.mnemonic).toBe('add');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Add two registers');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('000');
@@ -61,7 +61,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('403100B3');
         
         expect(result.mnemonic).toBe('sub');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Subtract two registers');
         expect(result.fields.funct7).toBe('0100000');
         expect(result.fields.funct3).toBe('000');
@@ -74,7 +74,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003110B3');
         
         expect(result.mnemonic).toBe('sll');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Shift left logical');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('001');
@@ -87,7 +87,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003120B3');
         
         expect(result.mnemonic).toBe('slt');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Set less than');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('010');
@@ -100,7 +100,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003130B3');
         
         expect(result.mnemonic).toBe('sltu');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Set less than unsigned');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('011');
@@ -113,7 +113,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003140B3');
         
         expect(result.mnemonic).toBe('xor');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Bitwise XOR');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('100');
@@ -126,7 +126,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003150B3');
         
         expect(result.mnemonic).toBe('srl');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Shift right logical');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('101');
@@ -139,7 +139,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('403150B3');
         
         expect(result.mnemonic).toBe('sra');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Shift right arithmetic');
         expect(result.fields.funct7).toBe('0100000');
         expect(result.fields.funct3).toBe('101');
@@ -152,7 +152,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003160B3');
         
         expect(result.mnemonic).toBe('or');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Bitwise OR');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('110');
@@ -165,7 +165,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('003170B3');
         
         expect(result.mnemonic).toBe('and');
-        expect(result.operands).toEqual(['x1', 'x2', 'x3']);
+        expect(result.operands).toEqual(['ra', 'sp', 'gp']);
         expect(result.description).toBe('Bitwise AND');
         expect(result.fields.funct7).toBe('0000000');
         expect(result.fields.funct3).toBe('111');
@@ -183,7 +183,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0010011');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('addi');
-        expect(result.operands).toEqual(['x1', 'x2', '100']);
+        expect(result.operands).toEqual(['ra', 'sp', '100']);
         expect(result.description).toBe('Add immediate to register');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rd).toBe('00001');
@@ -196,7 +196,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('F9C10093');
         
         expect(result.mnemonic).toBe('addi');
-        expect(result.operands).toEqual(['x1', 'x2', '-100']);
+        expect(result.operands).toEqual(['ra', 'sp', '-100']);
       });
     });
 
@@ -206,7 +206,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('00511093');
         
         expect(result.mnemonic).toBe('slli');
-        expect(result.operands).toEqual(['x1', 'x2', '5']);
+        expect(result.operands).toEqual(['ra', 'sp', '5']);
         expect(result.description).toBe('Shift left logical immediate');
         expect(result.fields.funct3).toBe('001');
         expect(result.fields['imm[11:0]']).toBe('000000000101');
@@ -219,7 +219,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('03212093');
         
         expect(result.mnemonic).toBe('slti');
-        expect(result.operands).toEqual(['x1', 'x2', '50']);
+        expect(result.operands).toEqual(['ra', 'sp', '50']);
         expect(result.description).toBe('Set less than immediate');
         expect(result.fields.funct3).toBe('010');
       });
@@ -231,7 +231,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('03213093');
         
         expect(result.mnemonic).toBe('sltiu');
-        expect(result.operands).toEqual(['x1', 'x2', '50']);
+        expect(result.operands).toEqual(['ra', 'sp', '50']);
         expect(result.description).toBe('Set less than immediate unsigned');
         expect(result.fields.funct3).toBe('011');
       });
@@ -243,7 +243,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0FF14093');
         
         expect(result.mnemonic).toBe('xori');
-        expect(result.operands).toEqual(['x1', 'x2', '255']);
+        expect(result.operands).toEqual(['ra', 'sp', '255']);
         expect(result.description).toBe('Bitwise XOR immediate');
         expect(result.fields.funct3).toBe('100');
       });
@@ -255,7 +255,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('00315093');
         
         expect(result.mnemonic).toBe('srli');
-        expect(result.operands).toEqual(['x1', 'x2', '3']);
+        expect(result.operands).toEqual(['ra', 'sp', '3']);
         expect(result.description).toBe('Shift right logical immediate');
         expect(result.fields.funct3).toBe('101');
       });
@@ -267,7 +267,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('40315093');
         
         expect(result.mnemonic).toBe('srai');
-        expect(result.operands).toEqual(['x1', 'x2', '3']);
+        expect(result.operands).toEqual(['ra', 'sp', '3']);
         expect(result.description).toBe('Shift right arithmetic immediate');
         expect(result.fields.funct3).toBe('101');
         expect(result.fields['imm[11:0]']).toBe('010000000011');
@@ -280,7 +280,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0AA16093');
         
         expect(result.mnemonic).toBe('ori');
-        expect(result.operands).toEqual(['x1', 'x2', '170']);
+        expect(result.operands).toEqual(['ra', 'sp', '170']);
         expect(result.description).toBe('Bitwise OR immediate');
         expect(result.fields.funct3).toBe('110');
       });
@@ -292,7 +292,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('05517093');
         
         expect(result.mnemonic).toBe('andi');
-        expect(result.operands).toEqual(['x1', 'x2', '85']);
+        expect(result.operands).toEqual(['ra', 'sp', '85']);
         expect(result.description).toBe('Bitwise AND immediate');
         expect(result.fields.funct3).toBe('111');
       });
@@ -309,7 +309,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0000011');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('lb');
-        expect(result.operands).toEqual(['x1', 'x2', '100']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Load byte');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rd).toBe('00001');
@@ -324,7 +324,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06411083');
         
         expect(result.mnemonic).toBe('lh');
-        expect(result.operands).toEqual(['x1', 'x2', '4']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Load halfword');
         expect(result.fields.funct3).toBe('001');
       });
@@ -336,7 +336,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06412083');
         
         expect(result.mnemonic).toBe('lw');
-        expect(result.operands).toEqual(['x1', 'x2', '100']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Load word');
         expect(result.fields.funct3).toBe('010');
       });
@@ -348,7 +348,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06414083');
         
         expect(result.mnemonic).toBe('lbu');
-        expect(result.operands).toEqual(['x1', 'x2', '100']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Load byte unsigned');
         expect(result.fields.funct3).toBe('100');
       });
@@ -360,7 +360,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06415083');
         
         expect(result.mnemonic).toBe('lhu');
-        expect(result.operands).toEqual(['x1', 'x2', '4']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Load halfword unsigned');
         expect(result.fields.funct3).toBe('101');
       });
@@ -377,7 +377,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0100011');
         expect(result.instructionType).toBe('S');
         expect(result.mnemonic).toBe('sb');
-        expect(result.operands).toEqual(['x1', '100(x2)']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Store byte');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rs2).toBe('00001');
@@ -393,7 +393,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06111223');
         
         expect(result.mnemonic).toBe('sh');
-        expect(result.operands).toEqual(['x1', '100(x2)']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Store halfword');
         expect(result.fields.funct3).toBe('001');
       });
@@ -405,7 +405,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('06112223');
         
         expect(result.mnemonic).toBe('sw');
-        expect(result.operands).toEqual(['x1', '100(x2)']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Store word');
         expect(result.fields.funct3).toBe('010');
       });
@@ -422,7 +422,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('1100011');
         expect(result.instructionType).toBe('B');
         expect(result.mnemonic).toBe('beq');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if equal');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rs1).toBe('00001');
@@ -436,7 +436,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('00209463');
         
         expect(result.mnemonic).toBe('bne');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if not equal');
         expect(result.fields.funct3).toBe('001');
       });
@@ -448,7 +448,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0020C463');
         
         expect(result.mnemonic).toBe('blt');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if less than');
         expect(result.fields.funct3).toBe('100');
       });
@@ -460,7 +460,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0020D463');
         
         expect(result.mnemonic).toBe('bge');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if greater than or equal');
         expect(result.fields.funct3).toBe('101');
       });
@@ -472,7 +472,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0020E463');
         
         expect(result.mnemonic).toBe('bltu');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if less than unsigned');
         expect(result.fields.funct3).toBe('110');
       });
@@ -484,7 +484,7 @@ describe('RiscVDecoderService', () => {
         const result = service.decode('0020F463');
         
         expect(result.mnemonic).toBe('bgeu');
-        expect(result.operands).toEqual(['x1', 'x2', '8']);
+        expect(result.operands).toEqual(['ra', 'sp', '8']);
         expect(result.description).toBe('Branch if greater than or equal unsigned');
         expect(result.fields.funct3).toBe('111');
       });
@@ -501,7 +501,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0110111');
         expect(result.instructionType).toBe('U');
         expect(result.mnemonic).toBe('lui');
-        expect(result.operands).toEqual(['x1', '0x12345000']);
+        expect(result.operands).toEqual(['ra', '0x12345']);
         expect(result.description).toBe('Load upper immediate');
         expect(result.fields.rd).toBe('00001');
         expect(result.fields['imm[31:12]']).toBe('00010010001101000101');
@@ -517,7 +517,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0010111');
         expect(result.instructionType).toBe('U');
         expect(result.mnemonic).toBe('auipc');
-        expect(result.operands).toEqual(['x1', '0x12345000']);
+        expect(result.operands).toEqual(['ra', '0x12345']);
         expect(result.description).toBe('Add upper immediate to PC');
         expect(result.fields.rd).toBe('00001');
         expect(result.fields['imm[31:12]']).toBe('00010010001101000101');
@@ -535,7 +535,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('1101111');
         expect(result.instructionType).toBe('J');
         expect(result.mnemonic).toBe('jal');
-        expect(result.operands).toEqual(['x1', '0']);
+        expect(result.operands).toEqual(['ra', '0']);
         expect(result.description).toBe('Jump and link');
         expect(result.fields.rd).toBe('00001');
       });
@@ -550,7 +550,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('1100111');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('jalr');
-        expect(result.operands).toEqual(['x1', 'x2', '100']);
+        expect(result.operands).toEqual(['ra', '100(sp)']);
         expect(result.description).toBe('Jump and link register');
         expect(result.fields.rd).toBe('00001');
         expect(result.fields.rs1).toBe('00010');
@@ -569,7 +569,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('1110011');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('ecall');
-        expect(result.operands).toEqual(['x0', 'x0', '0']);
+        expect(result.operands).toEqual([]);
         expect(result.description).toBe('Environment call');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rd).toBe('00000');
@@ -587,7 +587,7 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('1110011');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('ebreak');
-        expect(result.operands).toEqual(['x0', 'x0', '1']);
+        expect(result.operands).toEqual([]);
         expect(result.description).toBe('Environment break');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rd).toBe('00000');
@@ -605,12 +605,107 @@ describe('RiscVDecoderService', () => {
         expect(result.opcode).toBe('0001111');
         expect(result.instructionType).toBe('I');
         expect(result.mnemonic).toBe('fence');
-        expect(result.operands).toEqual(['x0', 'x0', '255']);
+        expect(result.operands).toEqual(['0', 'iorw']);
         expect(result.description).toBe('Fence');
         expect(result.fields.funct3).toBe('000');
         expect(result.fields.rd).toBe('00000');
         expect(result.fields.rs1).toBe('00000');
         expect(result.fields['imm[11:0]']).toBe('000011111111');
+      });
+    });
+
+    describe('FENCE.I instruction', () => {
+      it('should decode FENCE.I instruction correctly', () => {
+        // FENCE.I: 0x0000100F
+        const result = service.decode('0000100F');
+        
+        expect(result.hex).toBe('0000100F');
+        expect(result.opcode).toBe('0001111');
+        expect(result.instructionType).toBe('I');
+        expect(result.mnemonic).toBe('fence.i');
+        expect(result.operands).toEqual([]);
+        expect(result.description).toBe('Fence instruction cache');
+        expect(result.fields.funct3).toBe('001');
+      });
+    });
+  });
+
+  describe('CSR instructions', () => {
+    describe('CSRRW instruction', () => {
+      it('should decode CSRRW instruction correctly', () => {
+        // CSRRW x1, 0x300, x2: 0x300110F3
+        const result = service.decode('300110F3');
+        
+        expect(result.hex).toBe('300110F3');
+        expect(result.opcode).toBe('1110011');
+        expect(result.instructionType).toBe('I');
+        expect(result.mnemonic).toBe('csrrw');
+        expect(result.operands).toEqual(['ra', '0x300', 'sp']);
+        expect(result.description).toBe('Read/Write CSR');
+        expect(result.fields.funct3).toBe('001');
+        expect(result.fields.rd).toBe('00001');
+        expect(result.fields.rs1).toBe('00010');
+        expect(result.fields['imm[11:0]']).toBe('001100000000');
+      });
+    });
+
+    describe('CSRRS instruction', () => {
+      it('should decode CSRRS instruction correctly', () => {
+        // CSRRS x1, 0x300, x2: 0x300120F3
+        const result = service.decode('300120F3');
+        
+        expect(result.mnemonic).toBe('csrrs');
+        expect(result.operands).toEqual(['ra', '0x300', 'sp']);
+        expect(result.description).toBe('Read and Set bits in CSR');
+        expect(result.fields.funct3).toBe('010');
+      });
+    });
+
+    describe('CSRRC instruction', () => {
+      it('should decode CSRRC instruction correctly', () => {
+        // CSRRC x1, 0x300, x2: 0x300130F3
+        const result = service.decode('300130F3');
+        
+        expect(result.mnemonic).toBe('csrrc');
+        expect(result.operands).toEqual(['ra', '0x300', 'sp']);
+        expect(result.description).toBe('Read and Clear bits in CSR');
+        expect(result.fields.funct3).toBe('011');
+      });
+    });
+
+    describe('CSRRWI instruction', () => {
+      it('should decode CSRRWI instruction correctly', () => {
+        // CSRRWI x1, 0x300, 5: 0x3002D0F3
+        const result = service.decode('3002D0F3');
+        
+        expect(result.mnemonic).toBe('csrrwi');
+        expect(result.operands).toEqual(['ra', '0x300', '5']);
+        expect(result.description).toBe('Read/Write CSR immediate');
+        expect(result.fields.funct3).toBe('101');
+      });
+    });
+
+    describe('CSRRSI instruction', () => {
+      it('should decode CSRRSI instruction correctly', () => {
+        // CSRRSI x1, 0x300, 5: 0x3002E0F3
+        const result = service.decode('3002E0F3');
+        
+        expect(result.mnemonic).toBe('csrrsi');
+        expect(result.operands).toEqual(['ra', '0x300', '5']);
+        expect(result.description).toBe('Read and Set bits in CSR immediate');
+        expect(result.fields.funct3).toBe('110');
+      });
+    });
+
+    describe('CSRRCI instruction', () => {
+      it('should decode CSRRCI instruction correctly', () => {
+        // CSRRCI x1, 0x300, 5: 0x3002F0F3
+        const result = service.decode('3002F0F3');
+        
+        expect(result.mnemonic).toBe('csrrci');
+        expect(result.operands).toEqual(['ra', '0x300', '5']);
+        expect(result.description).toBe('Read and Clear bits in CSR immediate');
+        expect(result.fields.funct3).toBe('111');
       });
     });
   });
@@ -630,8 +725,8 @@ describe('RiscVDecoderService', () => {
 
     it('should handle register numbers correctly', () => {
       // Test with x31 (register 31)
-      const result = service.decode('003F80B3'); // ADD x1, x31, x0
-      expect(result.operands).toEqual(['x1', 'x31', 'x3']);
+      const result = service.decode('003F80B3'); // ADD x1, x31, x3
+      expect(result.operands).toEqual(['ra', 't6', 'gp']);
     });
 
     it('should handle immediate value sign extension', () => {
