@@ -1,7 +1,7 @@
 // React frontend for the RISC-V decoder using Mantine
 
 import { useState } from 'react';
-import { TextInput, Button, Card, Text, Stack, Grid, Badge, Code, Divider, Group } from '@mantine/core';
+import { TextInput, Button, Card, Text, Stack, Grid, Badge, Code, Divider } from '@mantine/core';
 
 interface DecodedInstruction {
   hex: string;
@@ -166,7 +166,7 @@ export default function RiscVDecoder() {
     });
 
     return (
-      <div style={{ fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.5' }}>
+      <div style={{ fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.5', margin: 0 }}>
         {segments.map((segment, index) => (
           <span
             key={index}
@@ -188,96 +188,82 @@ export default function RiscVDecoder() {
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '2rem auto', padding: '1rem' }}>
-      <Stack gap="md">
+    <div style={{ maxWidth: 1000, margin: '2rem auto', padding: '1rem' }}>
+      <Stack style={{ gap: '1rem' }}>
         <Text size="xl" fw={700}>RISC-V Instruction Decoder</Text>
 
         <TextInput
-          label="Hex Input"
           placeholder="Enter 32-bit hex (e.g. 0x00b50533 or 00b50533)"
           value={hex}
           onChange={(e) => setHex(e.currentTarget.value)}
-          error={error}
+          styles={{ input: { minWidth: '300px' } }}
         />
 
-        <Button onClick={decode} loading={loading}>Decode</Button>
+        <Button onClick={decode} loading={loading} style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>Decode</Button>
 
-        {/* Binary Display - moved here */}
+        {error && (
+          <Text c="red" size="sm" style={{ marginTop: '0.5rem' }}>{error}</Text>
+        )}
+
+        {/* Binary Display */}
         {decoded && (
-          <Card shadow="sm" padding="md" radius="md" withBorder>
-            <Stack gap="sm">
-              <Text size="sm" fw={500} c="dimmed">Binary Representation</Text>
-              {renderColoredBinary(decoded.binary, decoded.instructionType)}
+          <Card shadow="sm" padding="md" radius="md" withBorder style={{ margin: 0 }}>
+            <Stack style={{ gap: '0.5rem' }}>
+              <Text size="sm" fw={500} c="dimmed" style={{ margin: 0 }}>Binary Representation</Text>
+              <div style={{ marginTop: '0.5rem' }}>{renderColoredBinary(decoded.binary, decoded.instructionType)}</div>
             </Stack>
           </Card>
         )}
 
         {decoded && (
-          <Card shadow="sm" padding="lg" radius="md" withBorder>
-            <Stack gap="md">
-              {/* Header with mnemonic and type */}
-              <Group justify="space-between" align="center">
-                <Text size="lg" fw={700}>{decoded.mnemonic}</Text>
-                <Badge color={getInstructionTypeColor(decoded.instructionType)} size="lg">
-                  {decoded.instructionType}-type
-                </Badge>
-              </Group>
+          <Card shadow="sm" padding="md" radius="md" withBorder style={{ margin: 0 }}>
+            <Stack style={{ gap: '1rem' }}>
+              {/* Header with mnemonic, operands, and type */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'nowrap' }}>
+                  <Text size="lg" fw={700} style={{ whiteSpace: 'nowrap' }}>{decoded.mnemonic}</Text>
+                  <Badge color={getInstructionTypeColor(decoded.instructionType)} size="lg">
+                    {decoded.instructionType}-type
+                  </Badge>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'nowrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
+                    <Text size="sm" fw={500} c="dimmed" style={{ whiteSpace: 'nowrap' }}>Operands</Text>
+                    <Text size="sm" style={{ whiteSpace: 'nowrap' }}>{decoded.operands.join(', ')}</Text>
+                  </div>
+                </div>
+              </div>
 
               {/* Description */}
-              <Text c="dimmed" fs="italic">{decoded.description}</Text>
+              <Text c="dimmed" fs="italic" style={{ margin: 0 }}>{decoded.description}</Text>
 
-              <Divider />
-
-              {/* Hex */}
-              <div>
-                <Text size="sm" fw={500} c="dimmed">Hex</Text>
-                <Code block>{decoded.hex}</Code>
-              </div>
-
-              {/* Operands */}
-              <div>
-                <Text size="sm" fw={500} c="dimmed">Operands</Text>
-                <Group gap="xs" mt={4}>
-                  {decoded.operands.map((operand, index) => (
-                    <Badge key={index} variant="light" size="md">
-                      {operand}
-                    </Badge>
-                  ))}
-                </Group>
-              </div>
-
-              {/* Opcode */}
-              <div>
-                <Text size="sm" fw={500} c="dimmed">Opcode</Text>
-                <Code>{decoded.opcode}</Code>
-              </div>
+              <Divider style={{ margin: 0, marginTop: '0.5rem' }} />
 
               {/* Instruction Fields */}
-              <div>
-                <Text size="sm" fw={500} c="dimmed">Instruction Fields</Text>
-                <Grid mt={4}>
-                  {Object.entries(decoded.fields).map(([field, value]) => {
+              <Grid gutter={0} style={{ margin: 0, marginTop: '0.5rem' }}>
+                  {Object.entries(decoded.fields).reverse().map(([field, value]) => {
                     const fieldColors = getFieldColors(decoded.instructionType);
                     const fieldColor = fieldColors[field] || '#666';
                     return (
-                      <Grid.Col key={field} span={4}>
-                        <div>
+                      <Grid.Col key={field} span={4} style={{ marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
                           <Text 
                             size="xs" 
                             style={{ 
                               color: fieldColor,
-                              fontWeight: 'bold'
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap',
+                              margin: 0
                             }}
                           >
                             {field}
                           </Text>
-                          <Code>{value}</Code>
+                          <Code style={{ margin: 0 }}>{value}</Code>
                         </div>
                       </Grid.Col>
                     );
                   })}
                 </Grid>
-              </div>
             </Stack>
           </Card>
         )}
