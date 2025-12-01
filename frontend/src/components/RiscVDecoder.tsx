@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { TextInput, Button, Card, Text, Stack, Grid, Badge, Code, Divider } from '@mantine/core';
 import FormatImageWithArrow from './FormatImageWithArrow';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 interface DecodedInstruction {
   hex: string;
   binary: string;
@@ -32,7 +34,7 @@ export default function RiscVDecoder() {
         throw new Error('Invalid hex input. Must be 8 hex characters (32-bit instruction).');
       }
 
-      const res = await fetch(`/api/decode?hex=${cleanHex}`);
+      const res = await fetch(`${API_URL}/api/decode?hex=${cleanHex}`);
       
       if (!res.ok) {
         const errorData = await res.json();
