@@ -18,7 +18,7 @@ interface DecodedInstruction {
 }
 
 export default function RiscVDecoder() {
-  const [hex, setHex] = useState('0x00b50533');
+  const [hex, setHex] = useState('');
   const [decoded, setDecoded] = useState<DecodedInstruction | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
