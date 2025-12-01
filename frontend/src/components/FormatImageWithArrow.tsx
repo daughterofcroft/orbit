@@ -20,7 +20,7 @@ const getTopPercent = (type: SupportedType): string => {
   return topMap[typeUpper] || '17%';
 };
 
-export default function FormatImageWithArrow({ activeType, imageSrc = '/riscv-formats.png' }: Props) {
+export default function FormatImageWithArrow({ activeType, imageSrc = '@/assets/riscv-formats.png' }: Props) {
   const topPercent = getTopPercent(activeType);
 
   return (
@@ -46,7 +46,7 @@ export default function FormatImageWithArrow({ activeType, imageSrc = '/riscv-fo
           right: -4%;
           width: 5%;
           aspect-ratio: 1 / 1;
-          background-image: url('/arrow.svg');
+          background-image: url('@/assets/arrow.svg');
           background-size: contain;
           background-repeat: no-repeat;
           transform: translateY(-50%);
