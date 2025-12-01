@@ -1,3 +1,6 @@
+import riscvFormats from '@/assets/riscv-formats.png';
+import arrow from '@/assets/arrow.svg';
+
 type SupportedType = 'R' | 'I' | 'S' | 'B' | 'U' | 'J' | 'FENCE' | 'unknown';
 
 interface Props {
@@ -20,7 +23,7 @@ const getTopPercent = (type: SupportedType): string => {
   return topMap[typeUpper] || '17%';
 };
 
-export default function FormatImageWithArrow({ activeType, imageSrc = '@/assets/riscv-formats.png' }: Props) {
+export default function FormatImageWithArrow({ activeType, imageSrc = riscvFormats }: Props) {
   const topPercent = getTopPercent(activeType);
 
   return (
@@ -46,7 +49,7 @@ export default function FormatImageWithArrow({ activeType, imageSrc = '@/assets/
           right: -4%;
           width: 5%;
           aspect-ratio: 1 / 1;
-          background-image: url('@/assets/arrow.svg');
+          background-image: url(${arrow});
           background-size: contain;
           background-repeat: no-repeat;
           transform: translateY(-50%);
