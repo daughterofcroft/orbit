@@ -1,5 +1,5 @@
 import riscvFormats from '@/assets/riscv-formats.png';
-import arrow from '@/assets/arrow.svg';
+import arrowSvg from '@/assets/arrow.svg?url';
 
 type SupportedType = 'R' | 'I' | 'S' | 'B' | 'U' | 'J' | 'FENCE' | 'unknown';
 
@@ -49,7 +49,7 @@ export default function FormatImageWithArrow({ activeType, imageSrc = riscvForma
           right: -4%;
           width: 5%;
           aspect-ratio: 1 / 1;
-          background-image: url(${arrow});
+          background-image: url("${arrowSvg}");
           background-size: contain;
           background-repeat: no-repeat;
           transform: translateY(-50%);
